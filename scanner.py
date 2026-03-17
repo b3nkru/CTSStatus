@@ -98,7 +98,7 @@ def get_last_commit(repo_path: str) -> dict | None:
     """Return last git commit info for a repo."""
     try:
         result = subprocess.run(
-            ["git", "log", "-1", "--format=%H|%s|%aI"],
+            ["git", "-c", "safe.directory=*", "log", "-1", "--format=%H|%s|%aI"],
             cwd=repo_path,
             capture_output=True,
             text=True,
