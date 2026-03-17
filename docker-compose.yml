@@ -2,7 +2,7 @@ services:
   status:
     build: .
     ports:
-      - "8080:8080"
+      - "6767:6767"
     volumes:
       - /opt/ctsdeploy/projects:/opt/ctsdeploy/projects:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
