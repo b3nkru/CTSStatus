@@ -1,0 +1,14 @@
+services:
+  status:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - /opt/ctsdeploy/projects:/opt/ctsdeploy/projects:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/ctsdeploy:/var/log/ctsdeploy:ro
+    environment:
+      - PROJECTS_DIR=/opt/ctsdeploy/projects
+      - DOMAIN=benkruseski.com
+      - LOG_FILE=/var/log/ctsdeploy/deploy.log
+    restart: unless-stopped
