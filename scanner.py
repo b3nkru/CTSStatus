@@ -10,9 +10,32 @@ import yaml
 PROJECTS_DIR = os.getenv("PROJECTS_DIR", "/opt/ctsdeploy/projects")
 DOMAIN = os.getenv("DOMAIN", "benkruseski.com")
 LOG_FILE = os.getenv("LOG_FILE", "/var/log/ctsdeploy/deploy.log")
+EXTRAS_FILE = os.getenv("EXTRAS_FILE", "/app/extras.yaml")
 
 _cache: dict = {"data": None, "timestamp": 0.0}
 CACHE_TTL = 30  # seconds
+
+
+def load_extras() -> list[dict]:
+    if not os.path.isfile(EXTRAS_FILE):
+        return []
+    try:
+        with open(EXTRAS_FILE) as f:
+            data = yaml.safe_load(f) or {}
+        return [
+            {
+                "repo_name": None,
+                "project_name": e["name"],
+                "port": None,
+                "branch": None,
+                "url": e["url"],
+                "repo_path": None,
+            }
+            for e in data.get("extras", [])
+            if e.get("name") and e.get("url")
+        ]
+    except Exception:
+        return []
 
 
 def scan_projects() -> list[dict]:
@@ -152,7 +175,7 @@ async def get_all_projects_status(force: bool = False) -> list[dict]:
     if not force and _cache["data"] is not None and (now - _cache["timestamp"]) < CACHE_TTL:
         return _cache["data"]
 
-    projects = scan_projects()
+    projects = scan_projects() + load_extras()
     results = await asyncio.gather(*[get_project_status(p) for p in projects])
     _cache["data"] = list(results)
     _cache["timestamp"] = now
